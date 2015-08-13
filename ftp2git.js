@@ -1,51 +1,65 @@
 var CONFIG        = require("./config"),
     fs            = require('fs'),
     Client        = require('ftp'),
-    c             = new Client(),
-    c2            = new Client(),
     latestFolder  = "",
     pathToZip     = ""
 
-downloadZipFromFtp (function () {
-  console.log ("done")
+listPrimaryDirectory (function () {
+  listSecondaryDirectory (function (c, pathToZip) {
+    downloadZip (c, pathToZip, function () {
+      console.log ("done")
+    })
+  })
 })
 
-function downloadZipFromFtp (callback) {
+function listPrimaryDirectory (callback) {
+  var c = new Client()
+
   c.on('ready', function() {
     c.list(function(err, list) {
       if (err) throw err
 
       latestFolder = getLatestFolder (list)
 
-      c2.on ('ready', function () {
-        c2.list(latestFolder, function(err, list) {
-          if (err) throw err
-
-          pathToZip = getPathToZip (list)
-
-          c2.get(latestFolder + "/" + pathToZip, function(err, stream) {
-            if (err) throw err
-
-            stream.once('close', function() {
-              c.end()
-
-              callback()
-            })
-
-            stream.pipe(fs.createWriteStream("/tmp/" + latestFolder + ".zip"))
-          })
-        })
-
-        c2.end()
-      })
-
-      c2.connect (CONFIG.CLIENT_OPTIONS)
-
       c.end()
+
+      callback ()
     })
   })
 
   c.connect(CONFIG.CLIENT_OPTIONS)
+}
+
+function listSecondaryDirectory (callback) {
+  var c = new Client()
+
+  c.on ('ready', function () {
+    c.list(latestFolder, function(err, list) {
+      if (err) throw err
+
+      var pathToZip = latestFolder + "/" + getPathToZip (list)
+
+      callback (c, pathToZip)
+    })
+
+    c.end()
+  })
+
+  c.connect (CONFIG.CLIENT_OPTIONS)
+}
+
+function downloadZip (c, pathToZip, callback) {
+  c.get(pathToZip, function(err, stream) {
+    if (err) throw err
+
+    stream.once('close', function() {
+      c.end()
+
+      callback()
+    })
+
+    stream.pipe(fs.createWriteStream("/tmp/" + latestFolder + ".zip"))
+  })
 }
 
 function getLatestFolder (list) {
