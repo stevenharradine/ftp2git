@@ -23,12 +23,6 @@ c.on('ready', function() {
       }
     }
 
-    client2Options = {
-      "host": CONFIG.FTP_URL,
-      "user": CONFIG.FTP_USER,
-      "password": CONFIG.FTP_PASS
-    }
-
     c2.on ('ready', function () {
       c2.list(latestFolder, function(err, list) {
         if (err) throw err
@@ -49,7 +43,7 @@ c.on('ready', function() {
       c2.end()
     })
 
-    c2.connect (client2Options)
+    c2.connect (clientOptions)
 
     c.end()
   })
