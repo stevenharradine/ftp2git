@@ -3,11 +3,6 @@ var CONFIG        = require("./config"),
     Client        = require('ftp'),
     c             = new Client(),
     c2            = new Client(),
-    clientOptions = {
-      "host": CONFIG.FTP_URL,
-      "user": CONFIG.FTP_USER,
-      "password": CONFIG.FTP_PASS
-    },
     latestFolder  = "",
     pathToZip     = ""
 
@@ -44,13 +39,13 @@ function downloadZipFromFtp (callback) {
         c2.end()
       })
 
-      c2.connect (clientOptions)
+      c2.connect (CONFIG.CLIENT_OPTIONS)
 
       c.end()
     })
   })
 
-  c.connect(clientOptions)
+  c.connect(CONFIG.CLIENT_OPTIONS)
 }
 
 function getLatestFolder (list) {
