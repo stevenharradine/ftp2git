@@ -19,9 +19,9 @@ function listPrimaryDirectory (callback) {
     c.list(function(err, list) {
       if (err) throw err
 
-      latestFolder = getLatestFolder (list)
-
       c.end()
+
+      latestFolder = getLatestFolder (list)
 
       callback ()
     })
@@ -41,8 +41,6 @@ function listSecondaryDirectory (callback) {
 
       callback (c, pathToZip)
     })
-
-    c.end()
   })
 
   c.connect (CONFIG.CLIENT_OPTIONS)
