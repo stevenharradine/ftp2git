@@ -40,7 +40,7 @@ c.on('ready', function() {
         }
 
         c2.get(latestFolder + "/" + pathToZip, function(err, stream) {
-          if (err) throw err;
+          if (err) throw err
           stream.once('close', function() { c.end() })
           stream.pipe(fs.createWriteStream("/tmp/" + latestFolder + ".zip"))
         })
