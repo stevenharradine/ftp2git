@@ -1,0 +1,9 @@
+{
+  "name": "ftp2git",
+  "description": "Will extract a zip file from the ftp and commit it to a git repo",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "ftp": "*"
+  }
+}
