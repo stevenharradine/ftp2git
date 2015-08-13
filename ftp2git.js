@@ -65,8 +65,8 @@ function downloadZip (c, pathToZip, callback) {
 function getLatestFolder (list) {
   var latestFolder
 
-  for (l in list) {
-    var current_folder_name = list[l].name
+  for (i in list) {
+    var current_folder_name = list[i].name
 
     if (current_folder_name.indexOf(CONFIG.KEY_WORD) >= 0) {
       latestFolder = current_folder_name
@@ -79,8 +79,8 @@ function getLatestFolder (list) {
 function getPathToZip (list) {
   var pathToZip
 
-  for (l in list) {
-    var filename = list[l].name
+  for (i in list) {
+    var filename = list[i].name
 
     pathToZip = filename
   }
