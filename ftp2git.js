@@ -16,7 +16,7 @@ c.on('ready', function() {
     if (err) throw err
 
     for (l in list) {
-      var current_folder_name = list[l].name;
+      var current_folder_name = list[l].name
 
       if (current_folder_name.indexOf(CONFIG.KEY_WORD) >= 0) {
         latestFolder = current_folder_name
