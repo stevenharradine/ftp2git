@@ -9,10 +9,7 @@ var CONFIG        = require("./config"),
       "password": CONFIG.FTP_PASS
     },
     latestFolder  = "",
-    pathToZip     = "",
-    year          = "",
-    month         = "",
-    day           = ""
+    pathToZip     = ""
 
 c.on('ready', function() {
   c.list(function(err, list) {
