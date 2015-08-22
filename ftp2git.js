@@ -1,23 +1,78 @@
-var CONFIG        = require("./config"),
-    fs            = require('fs'),
-    Client        = require('ftp'),
-    latestFolder  = "",
-    pathToZip     = ""
+var CONFIG         = require("./config"),
+    fs             = require("fs"),
+    Client         = require("ftp"),
+    Git            = require("nodegit"),
+    del            = require("del"),
+    unzip          = require("unzip"),
+    latestFolder   = "",
+    pathToZip      = "",
+    delete_options = {
+      force: true // allow access from outside directory running script (ie /tmp/)
+    }
+
+function print (message) {
+  process.stdout.write (message)
+}
+
+function println (message) {
+  print (message + "\n")
+}
 
 listPrimaryDirectory (function () {
   listSecondaryDirectory (function (c, pathToZip) {
     downloadZip (c, pathToZip, function () {
-      console.log ("done")
+      updateGitFiles ()  // TODO: cant have a callback in a promise?
     })
   })
 })
 
+function updateGitFiles () {
+  print ("cloning repo ... ")
+  Git.Clone(CONFIG.GIT_PATH, "/tmp/ftp2git_repo").then(function(repository) {
+    println ("done")
+
+    deleteRepoContents (function () {
+    })
+  }, function () {  // Error: folder exists (already cloned?)
+    println ("failed")
+    print   ("deleting old repo ... ")
+
+    del(["/tmp/ftp2git_repo/"], delete_options, function (err, paths) {
+      println ("done")
+
+      updateGitFiles ()
+    })
+  })
+}
+
+function deleteRepoContents () {
+  print ("Deleting old repo files and folders ... ")
+
+  del(["/tmp/ftp2git_repo/*"], delete_options, function (err, paths) {
+    println ("done")
+
+    extractZipIntoRepo ()
+  })
+}
+
+function extractZipIntoRepo () {
+  print ("Extracting zip into repo ... ")
+
+  fs.createReadStream("/tmp/ftp2git.zip")
+    .pipe(unzip.Extract({ path: "/tmp/ftp2git_repo" }))
+    .on("close", function () {
+      println ("done")
+    })
+}
+
 function listPrimaryDirectory (callback) {
   var c = new Client()
 
-  c.on('ready', function() {
+  print ("Listing primary dir ... ")
+  c.on("ready", function() {
     c.list(function(err, list) {
       if (err) throw err
+      println ("done")
 
       c.end()
 
@@ -33,9 +88,11 @@ function listPrimaryDirectory (callback) {
 function listSecondaryDirectory (callback) {
   var c = new Client()
 
-  c.on ('ready', function () {
+  print ("Listing secondary dir ... ")
+  c.on ("ready", function () {
     c.list(latestFolder, function(err, list) {
       if (err) throw err
+      println ("done")
 
       var pathToZip = latestFolder + "/" + getPathToZip (list)
 
@@ -47,16 +104,19 @@ function listSecondaryDirectory (callback) {
 }
 
 function downloadZip (c, pathToZip, callback) {
+  print ("downloading zip file ... ")
   c.get(pathToZip, function(err, stream) {
     if (err) throw err
 
-    stream.once('close', function() {
+    stream.once("close", function() {
       c.end()
+
+      println ("done")
 
       callback()
     })
 
-    stream.pipe(fs.createWriteStream("/tmp/" + latestFolder + ".zip"))
+    stream.pipe(fs.createWriteStream("/tmp/ftp2git.zip"))
   })
 }
 

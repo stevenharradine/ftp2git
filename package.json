@@ -5,6 +5,8 @@
   "private": true,
   "dependencies": {
     "ftp": "*",
-    "nodegit": "*"
+    "nodegit": "*",
+    "del": "*",
+    "unzip": "*"
   }
 }
