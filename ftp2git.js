@@ -9,7 +9,7 @@ var CONFIG         = require("./config"),
 listPrimaryDirectory (function (latestFolder) {
   listSecondaryDirectory (latestFolder, function (c, pathToZip) {
     downloadZip (c, pathToZip, function () {
-      updateGitFiles (function () {
+      updateGitFiles (0, function () {
         deleteRepoContents (function () {
           extractZipIntoRepo (function () {
             // TODO: git add . -A && git commit -m "update" && git push
@@ -20,19 +20,23 @@ listPrimaryDirectory (function (latestFolder) {
   })
 })
 
-function updateGitFiles (callback) {
-  logging.print ("cloning repo ... ")
+function updateGitFiles (fail_counter, callback) {
+  logging.print ("cloning " + (fail_counter >= 1 ? " (again) " : "") + "repo ... ")
   Git.Clone(CONFIG.GIT_PATH, "/tmp/ftp2git_repo").then(function(repository) {
     logging.println ("done")
 
     callback ()
   }, function () {  // Error: folder exists (already cloned?)
-    logging.println ("failed")
-    logging.print   ("deleting old repo ... ")
+    if (fail_counter++ == 0) {
+      logging.println ("failed")
+      logging.print   ("deleting old repo ... ")
 
-    deleteFromFileSystem ("/tmp/ftp2git_repo/", function () {
-      updateGitFiles (callback)
-    })
+      deleteFromFileSystem ("/tmp/ftp2git_repo/", function () {
+        updateGitFiles (fail_counter, callback)
+      })
+    } else {
+      logging.println ("failed!")
+    }
   })
 }
 
