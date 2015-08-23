@@ -8,37 +8,37 @@ var CONFIG         = require("./config"),
     pathToZip      = "",
     delete_options = {
       force: true // allow access from outside directory running script (ie /tmp/)
-    }
+    }, Logging     = function () {
+      this.constructor.prototype.print = function (message) {
+        process.stdout.write (message)
+      }
 
-function print (message) {
-  process.stdout.write (message)
-}
-
-function println (message) {
-  print (message + "\n")
-}
+      this.constructor.prototype.println = function (message) {
+        this.print (message + "\n")
+      }
+    }, logging = new Logging()
 
 listPrimaryDirectory (function () {
   listSecondaryDirectory (function (c, pathToZip) {
-    downloadZip (c, pathToZip, function () {
+//    downloadZip (c, pathToZip, function () {
       updateGitFiles ()  // TODO: cant have a callback in a promise?
-    })
+//    })
   })
 })
 
 function updateGitFiles () {
-  print ("cloning repo ... ")
+  logging.print ("cloning repo ... ")
   Git.Clone(CONFIG.GIT_PATH, "/tmp/ftp2git_repo").then(function(repository) {
-    println ("done")
+    logging.println ("done")
 
     deleteRepoContents (function () {
     })
   }, function () {  // Error: folder exists (already cloned?)
-    println ("failed")
-    print   ("deleting old repo ... ")
+    logging.println ("failed")
+    logging.print   ("deleting old repo ... ")
 
     del(["/tmp/ftp2git_repo/"], delete_options, function (err, paths) {
-      println ("done")
+      logging.println ("done")
 
       updateGitFiles ()
     })
@@ -46,38 +46,38 @@ function updateGitFiles () {
 }
 
 function deleteRepoContents () {
-  print ("Deleting old repo files and folders ... ")
+  logging.print ("Deleting old repo files and folders ... ")
 
   del(["/tmp/ftp2git_repo/*"], delete_options, function (err, paths) {
-    println ("done")
+    logging.println ("done")
 
     extractZipIntoRepo ()
   })
 }
 
 function extractZipIntoRepo () {
-  print ("Extracting zip into repo ... ")
+  logging.print ("Extracting zip into repo ... ")
 
   fs.createReadStream("/tmp/ftp2git.zip")
     .pipe(unzip.Extract({ path: "/tmp/ftp2git_repo" }))
     .on("close", function () {
-      println ("done")
+      logging.println ("done")
     })
 }
 
 function listPrimaryDirectory (callback) {
   var c = new Client()
 
-  print ("Listing primary dir ... ")
+  logging.print ("Listing primary dir ... ")
   c.on("ready", function() {
     c.list(function(err, list) {
       if (err) throw err
-      println ("done")
 
       c.end()
 
       latestFolder = getLatestFolder (list)
 
+      logging.println ("done")
       callback ()
     })
   })
@@ -88,14 +88,14 @@ function listPrimaryDirectory (callback) {
 function listSecondaryDirectory (callback) {
   var c = new Client()
 
-  print ("Listing secondary dir ... ")
+  logging.print ("Listing secondary dir ... ")
   c.on ("ready", function () {
     c.list(latestFolder, function(err, list) {
       if (err) throw err
-      println ("done")
 
       var pathToZip = latestFolder + "/" + getPathToZip (list)
 
+      logging.println ("done")
       callback (c, pathToZip)
     })
   })
@@ -104,15 +104,15 @@ function listSecondaryDirectory (callback) {
 }
 
 function downloadZip (c, pathToZip, callback) {
-  print ("downloading zip file ... ")
+  logging.print ("downloading zip file ... ")
+
   c.get(pathToZip, function(err, stream) {
     if (err) throw err
 
     stream.once("close", function() {
       c.end()
 
-      println ("done")
-
+      logging.println ("done")
       callback()
     })
 
