@@ -5,8 +5,7 @@ var CONFIG         = require("./config"),
     del            = require("del"),
     unzip          = require("unzip"),
     logging        = require("./logger")(true),
-    latestFolder   = "",
-    pathToZip      = ""
+    latestFolder   = ""
 
 listPrimaryDirectory (function () {
   listSecondaryDirectory (function (c, pathToZip) {
@@ -46,7 +45,7 @@ function deleteFromFileSystem (path, callback) {
   var delete_options = {
     force: true // allow access from outside directory running script (ie /tmp/)
   }
-  
+
   del([path], delete_options, function (err, paths) {
     logging.println ("done")
 
