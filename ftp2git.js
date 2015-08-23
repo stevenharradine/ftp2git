@@ -21,9 +21,9 @@ var CONFIG         = require("./config"),
 
 listPrimaryDirectory (function () {
   listSecondaryDirectory (function (c, pathToZip) {
-//    downloadZip (c, pathToZip, function () {
+    downloadZip (c, pathToZip, function () {
       updateGitFiles ()  // TODO: cant have a callback in a promise?
-//    })
+    })
   })
 })
 
