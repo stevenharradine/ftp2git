@@ -4,11 +4,10 @@ var CONFIG         = require("./config"),
     Git            = require("nodegit"),
     del            = require("del"),
     unzip          = require("unzip"),
-    logging        = require("./logger")(true),
-    latestFolder   = ""
+    logging        = require("./logger")(true)
 
-listPrimaryDirectory (function () {
-  listSecondaryDirectory (function (c, pathToZip) {
+listPrimaryDirectory (function (latestFolder) {
+  listSecondaryDirectory (latestFolder, function (c, pathToZip) {
     downloadZip (c, pathToZip, function () {
       updateGitFiles (function () {
         deleteRepoContents (function () {
@@ -75,17 +74,17 @@ function listPrimaryDirectory (callback) {
 
       c.end()
 
-      latestFolder = getLatestFolder (list)
+      var latestFolder = getLatestFolder (list)
 
       logging.println ("done")
-      callback ()
+      callback (latestFolder)
     })
   })
 
   c.connect(CONFIG.CLIENT_OPTIONS)
 }
 
-function listSecondaryDirectory (callback) {
+function listSecondaryDirectory (latestFolder, callback) {
   var c = new Client()
 
   logging.print ("Listing secondary dir ... ")
