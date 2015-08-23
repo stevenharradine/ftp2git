@@ -17,23 +17,26 @@ var CONFIG         = require("./config"),
       this.constructor.prototype.println = function (message) {
         this.print (message + "\n")
       }
-    }, logging = new Logging(true)
+    }, logging = new Logging (true)
 
 listPrimaryDirectory (function () {
   listSecondaryDirectory (function (c, pathToZip) {
     downloadZip (c, pathToZip, function () {
-      updateGitFiles ()  // TODO: cant have a callback in a promise?
+      updateGitFiles (function () {
+        deleteRepoContents (function () {
+          extractZipIntoRepo (function () {} )
+        })
+      })
     })
   })
 })
 
-function updateGitFiles () {
+function updateGitFiles (callback) {
   logging.print ("cloning repo ... ")
   Git.Clone(CONFIG.GIT_PATH, "/tmp/ftp2git_repo").then(function(repository) {
     logging.println ("done")
 
-    deleteRepoContents (function () {
-    })
+    callback ()
   }, function () {  // Error: folder exists (already cloned?)
     logging.println ("failed")
     logging.print   ("deleting old repo ... ")
@@ -41,28 +44,30 @@ function updateGitFiles () {
     del(["/tmp/ftp2git_repo/"], delete_options, function (err, paths) {
       logging.println ("done")
 
-      updateGitFiles ()
+      updateGitFiles (callback)
     })
   })
 }
 
-function deleteRepoContents () {
+function deleteRepoContents (callback) {
   logging.print ("Deleting old repo files and folders ... ")
 
   del(["/tmp/ftp2git_repo/*"], delete_options, function (err, paths) {
     logging.println ("done")
 
-    extractZipIntoRepo ()
+    callback ()
   })
 }
 
-function extractZipIntoRepo () {
+function extractZipIntoRepo (callback) {
   logging.print ("Extracting zip into repo ... ")
 
   fs.createReadStream("/tmp/ftp2git.zip")
     .pipe(unzip.Extract({ path: "/tmp/ftp2git_repo" }))
     .on("close", function () {
       logging.println ("done")
+
+      callback ()
     })
 }
 
