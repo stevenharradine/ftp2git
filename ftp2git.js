@@ -8,15 +8,16 @@ var CONFIG         = require("./config"),
     pathToZip      = "",
     delete_options = {
       force: true // allow access from outside directory running script (ie /tmp/)
-    }, Logging     = function () {
+    }, Logging     = function (verbose) {
       this.constructor.prototype.print = function (message) {
-        process.stdout.write (message)
+        if (verbose)
+          process.stdout.write (message)
       }
 
       this.constructor.prototype.println = function (message) {
         this.print (message + "\n")
       }
-    }, logging = new Logging()
+    }, logging = new Logging(true)
 
 listPrimaryDirectory (function () {
   listSecondaryDirectory (function (c, pathToZip) {
