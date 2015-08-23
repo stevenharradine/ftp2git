@@ -11,7 +11,9 @@ listPrimaryDirectory (function (latestFolder) {
     downloadZip (c, pathToZip, function () {
       updateGitFiles (function () {
         deleteRepoContents (function () {
-          extractZipIntoRepo (function () {} )
+          extractZipIntoRepo (function () {
+            // TODO: git add . -A && git commit -m "update" && git push
+          })
         })
       })
     })
