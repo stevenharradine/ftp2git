@@ -6,10 +6,7 @@ var CONFIG         = require("./config"),
     unzip          = require("unzip"),
     logging        = require("./logger")(true),
     latestFolder   = "",
-    pathToZip      = "",
-    delete_options = {
-      force: true // allow access from outside directory running script (ie /tmp/)
-    }
+    pathToZip      = ""
 
 listPrimaryDirectory (function () {
   listSecondaryDirectory (function (c, pathToZip) {
@@ -33,9 +30,7 @@ function updateGitFiles (callback) {
     logging.println ("failed")
     logging.print   ("deleting old repo ... ")
 
-    del(["/tmp/ftp2git_repo/"], delete_options, function (err, paths) {
-      logging.println ("done")
-
+    deleteFromFileSystem ("/tmp/ftp2git_repo/", function () {
       updateGitFiles (callback)
     })
   })
@@ -44,7 +39,15 @@ function updateGitFiles (callback) {
 function deleteRepoContents (callback) {
   logging.print ("Deleting old repo files and folders ... ")
 
-  del(["/tmp/ftp2git_repo/*"], delete_options, function (err, paths) {
+  deleteFromFileSystem ("/tmp/ftp2git_repo/*", callback)
+}
+
+function deleteFromFileSystem (path, callback) {
+  var delete_options = {
+    force: true // allow access from outside directory running script (ie /tmp/)
+  }
+  
+  del([path], delete_options, function (err, paths) {
     logging.println ("done")
 
     callback ()
