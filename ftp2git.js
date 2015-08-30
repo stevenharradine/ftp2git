@@ -13,7 +13,7 @@ function puts(error, stdout, stderr) { sys.puts(stdout) }
 listPrimaryDirectory (function (latestFolder) {
   listSecondaryDirectory (latestFolder, function (c, pathToZip) {
     downloadZip (c, pathToZip, function () {
-      updateGitFiles (0, function () {
+      updateGitFiles (function () {
         deleteRepoContents (function () {
           extractZipIntoRepo (function () {
             exec(
@@ -29,8 +29,8 @@ listPrimaryDirectory (function (latestFolder) {
   })
 })
 
-function updateGitFiles (fail_counter, callback) {
-  logging.print ("cloning " + (fail_counter >= 1 ? "(again) " : "") + "repo ... ")
+function updateGitFiles (callback) {
+  logging.print ("cloning/pulling repo ... ")
 
   exec(
     "cd /tmp && " +
