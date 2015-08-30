@@ -28,7 +28,7 @@ listPrimaryDirectory (function (latestFolder) {
 })
 
 function puts(error, stdout, stderr) {
-  logger.println ( sys.puts(stdout) )
+  logging.println ( sys.puts(stdout) )
 }
 
 function updateGitFiles (callback) {
