@@ -1,10 +1,14 @@
-var CONFIG         = require("./config"),
-    fs             = require("fs"),
-    Client         = require("ftp"),
-    Git            = require("nodegit"),
-    del            = require("del"),
-    unzip          = require("unzip"),
-    logging        = require("./logger")(true)
+var CONFIG  = require("./config"),
+    fs      = require("fs"),
+    Client  = require("ftp"),
+    Git     = require("nodegit"),
+    del     = require("del"),
+    unzip   = require("unzip"),
+    logging = require("./logger")(true),
+    sys     = require('sys'),
+    exec    = require('child_process').exec
+function puts(error, stdout, stderr) { sys.puts(stdout) }
+
 
 listPrimaryDirectory (function (latestFolder) {
   listSecondaryDirectory (latestFolder, function (c, pathToZip) {
@@ -12,7 +16,12 @@ listPrimaryDirectory (function (latestFolder) {
       updateGitFiles (0, function () {
         deleteRepoContents (function () {
           extractZipIntoRepo (function () {
-            // TODO: git add . -A && git commit -m "update" && git push
+            exec(
+              "cd /tmp/ftp2git_repo && " +
+              "git add . -A && " +
+              "git commit -m \"update\" && " +
+              "git push origin master"
+            , puts)
           })
         })
       })
