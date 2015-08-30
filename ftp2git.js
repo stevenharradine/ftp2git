@@ -30,31 +30,20 @@ listPrimaryDirectory (function (latestFolder) {
 })
 
 function updateGitFiles (fail_counter, callback) {
-  var options = {
-    remoteCallbacks: {
-      credentials: function (url, userName) {
-        return Git.Cred.sshKeyFromAgent(userName)
-//        return Git.Cred.sshKeyNew (userName, 'public.key', 'private.key', '')
-      }
-    }
-  }
-
   logging.print ("cloning " + (fail_counter >= 1 ? "(again) " : "") + "repo ... ")
-  Git.Clone(CONFIG.GIT_PATH, "/tmp/ftp2git_repo", options).then(function(repository) {
-    logging.println ("done")
 
-    callback ()
-  }, function () {  // Error: folder exists (already cloned?)
-    if (fail_counter++ == 0) {
-      logging.println ("failed")
-      logging.print   ("deleting old repo ... ")
-
-      deleteFromFileSystem ("/tmp/ftp2git_repo/", function () {
-        updateGitFiles (fail_counter, callback)
-      })
-    } else {
-      logging.println ("failed!")
+  exec(
+    "cd /tmp && " +
+    "git clone " + CONFIG.GIT_PATH + " /tmp/ftp2git_repo && " +
+    "cd ftp2git_repo && " +
+    "git pull"
+  , function (error, stdout, stderr) {
+    if (error) {
+      logging.println ("ERROR" + error)
     }
+
+    logging.println ("done")
+    callback()
   })
 }
 
