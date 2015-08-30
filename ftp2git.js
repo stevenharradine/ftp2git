@@ -7,8 +7,6 @@ var CONFIG  = require("./config"),
     logging = require("./logger")(true),
     sys     = require('sys'),
     exec    = require('child_process').exec
-function puts(error, stdout, stderr) { sys.puts(stdout) }
-
 
 listPrimaryDirectory (function (latestFolder) {
   listSecondaryDirectory (latestFolder, function (c, pathToZip) {
@@ -28,6 +26,10 @@ listPrimaryDirectory (function (latestFolder) {
     })
   })
 })
+
+function puts(error, stdout, stderr) {
+  logger.println ( sys.puts(stdout) )
+}
 
 function updateGitFiles (callback) {
   logging.print ("cloning/pulling repo ... ")
