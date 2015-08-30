@@ -6,4 +6,3 @@ module.exports.CLIENT_OPTIONS = {
 module.exports.KEY_WORD = "-MyProject"
 
 module.exports.GIT_PATH = "https://github.com/stevenharradine/gitrepo.git"
-module.exports.GIT_KEY  = "KEY"
